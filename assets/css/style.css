@@ -1,0 +1,59 @@
+.jumbotron {
+    font-size: 54px;
+    /* margin-left: 5%;
+    margin-right: 5%;   */
+    width: 100%; 
+}
+
+.table{
+    /* margin-left: 5%;
+    margin-right: 5%;  
+    width: 90%;  */
+    /* border-bottom: 1px solid lightskyblue;
+    border-radius: 25px; */
+}
+
+.col-md-12{
+    border-radius: 25px;
+}
+
+.row{
+    margin-left: 5%;
+    margin-right: 5%;  
+    width: 90%; 
+
+}
+
+#trainarrivaltext{
+    border: 1px solid lightskyblue;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: lightskyblue;
+    color: white;
+    padding: 1%;
+}
+
+#trainarrivaldiv{
+    border: 1px solid lightskyblue;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 1%;
+}
+
+#addtraintext{
+    margin-top: 5%;
+    border: 1px solid lightskyblue;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: lightskyblue;
+    color: white;
+    padding: 1%;
+}
+
+form{
+    margin-bottom: 5%;
+    border: 1px solid lightskyblue;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 1%;
+}
