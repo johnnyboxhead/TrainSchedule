@@ -7,6 +7,7 @@
     <script   src="https://code.jquery.com/jquery-3.3.1.js"   integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="   crossorigin="anonymous"></script>
     <link rel="stylesheet" href="assets/css/style.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
     <title>Casey Jones</title>
 </head>
 <body>
@@ -20,13 +21,15 @@
         <table class="table">
             <thead>
                 <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Handle</th>
+                <th scope="col">Train Number</th>
+                <th scope="col">Train Name</th>
+                <th scope="col">Destination</th>
+                <th scope="col">Frequency</th>
+                <th scope="col">Next Arrival</th>
+                <th scope="col">Minutes Away</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="tablebody">
                 <tr>
                 <th scope="row">1</th>
                 <td>Mark</td>
@@ -50,16 +53,185 @@
     </div>    
     <div class="row" id="addtraintext">Add a Train</div>
     <div class="row" id="addtraindiv">
-        <form>
-            Train Name: <br>
-            <input type="text" name="trainname" id="trainname"><br>
-            Destination: <br>
-            <input type="text" name="destination" id="destination"><br>
-            First Train Time (hh:mm-military time): <br>
-            <input type="text" name="firsttraintime" id="firsttraintime"><br>
-            Frequency (min): <br> 
-            <input type="text" name="frequency" id="frequency">
-        </form>
+        Train Name: <br>
+        <input type="text" name="trainname" id="trainname"><br>
+        Destination: <br>
+        <input type="text" name="destination" id="destination"><br>
+        First Train Time (hh:mm-military time): <br>
+        <input type="text" name="firsttraintime" id="firsttraintime"><br>
+        Frequency (min): <br> 
+        <input type="text" name="frequency" id="frequency"><br><br>
+        <input type="submit" name="submitbutton" id="submit">
     </div>
+    <script>
+        // Initialize Firebase
+        var config = {
+        apiKey: "AIzaSyBujkiz995urKQHvDC42hrsUKNzV9OdcEM",
+        authDomain: "johnny-demo.firebaseapp.com",
+        databaseURL: "https://johnny-demo.firebaseio.com",
+        projectId: "johnny-demo",
+        storageBucket: "johnny-demo.appspot.com",
+        messagingSenderId: "1079768860694"
+        };
+
+  firebase.initializeApp(config);
+        
+        var train 
+        var trains = []
+        var name
+        var destination
+        var frequency
+        var nextOne
+        var minsAway
+        var firstTrain
+        var database = firebase.database()
+        var trainNumber
+        var dbName
+        var dbDest
+        var dbFirstTrain
+        var dbFreq
+        var dbTrainNumber = 0
+
+
+        // event listener to push data to the table when a change is made to the database
+        // database.ref().on("value", function(snapshot){
+        //     if (snapshot.val().dbTrainNumber > 0) {
+        //         dbName = snapshot.val().train.name;
+        //         dbDest = snapshot.val().train.destination;
+        //         dbFirstTrain = snapshot.val().train.firstTrain;
+        //         dbFreq = snapshot.val().train.frequency;
+        //         dbTrainNumber = snapshot.val().train.trainNumber;
+
+        //         console.log(snapshot.val())
+        //         $("#tablebody").val("");
+        //         $("#tablebody").append(`<td>${dbTrainNumber}</td><td>${dbName}</td><td>${dbDest}</td><td>${dbFirstTrain}</td><td>${dbFreq}</td>`);
+        //     } else {
+        //         //need to tell it what to do if the condition doesn't exist
+        //         dbTrainNumber = 0
+        //     }
+        // })    
+
+
+
+        // event listener to take user input data and push it to the database
+        $("#submit").on("click", function(){
+            //pushing the trains from the db to the trains array
+            database.ref().on("value", function(snapshot){
+                console.log("Snapshot: " + snapshot.val().trains)
+            })
+            // dbTrainNumber = dbTrainNumber + 1;
+            train = {
+                trainNumber: dbTrainNumber + 1,
+                name: $("#trainname").val(),
+                destination: $("#destination").val(),
+                firstTrain: $("#firsttraintime").val(),
+                frequency: $("#frequency").val()
+            };
+
+            trains.push(train)
+
+            console.log(trains)
+            
+            $("#trainname").val("")
+            $("#destination").val("")
+            $("#firsttraintime").val("")
+            $("#frequency").val("")
+
+            //teting to see where to clear the tablebody values
+            $("#tablebody").empty()
+
+            //passing the trains array to firebase
+            database.ref().set({
+                trains: trains
+            })    
+            
+        })
+
+    </script>
 </body>
 </html>
+
+<!-- // database.ref().on("value", function(snapshot){
+    //     dbTrainNumber = (snapshot.val().trainNumber)+1
+    // }) -->
+
+
+<!-- JS that works but without objects for each train -->
+<!-- <script>
+        // Initialize Firebase
+        var config = {
+        apiKey: "AIzaSyBujkiz995urKQHvDC42hrsUKNzV9OdcEM",
+        authDomain: "johnny-demo.firebaseapp.com",
+        databaseURL: "https://johnny-demo.firebaseio.com",
+        projectId: "johnny-demo",
+        storageBucket: "johnny-demo.appspot.com",
+        messagingSenderId: "1079768860694"
+        };
+
+  firebase.initializeApp(config);
+        
+        var name
+        var destination
+        var frequency
+        var nextOne
+        var minsAway
+        var firstTrain
+        var database = firebase.database()
+        var trainNumber
+        var dbName
+        var dbDest
+        var dbFirstTrain
+        var dbFreq
+        var dbTrainNumber
+
+
+        // event listener to push data to the table when a change is made to the database
+        database.ref().on("value", function(snapshot){
+            dbName = snapshot.val().name
+            dbDest = snapshot.val().destination
+            dbFirstTrain = snapshot.val().firstTrain
+            dbFreq = snapshot.val().frequency
+            dbTrainNumber = snapshot.val().trainNumber
+
+            console.log(snapshot.val())
+            $("#tablebody").val("")
+            $("#tablebody").append(`<td>${dbTrainNumber}</td><td>${dbName}</td><td>${dbDest}</td><td>${dbFirstTrain}</td><td>${dbFreq}</td>`)
+        })
+
+
+        // event listener to take user input data and push it to the database
+        $("#submit").on("click", function(){
+            name = $("#trainname").val();
+            destination = $("#destination").val();
+            firstTrain = $("#firsttraintime").val();
+            frequency = $("#frequency").val();
+            
+            //obtaining the trainNumber from the database
+            database.ref().on("value", function(snapshot){
+            trainNumber = (snapshot.val().trainNumber)+1
+            })
+
+            console.log(name, destination, firstTrain, frequency)
+            
+            $("#trainname").val("")
+            $("#destination").val("")
+            $("#firsttraintime").val("")
+            $("#frequency").val("")
+
+            //teting to see where to clear the tablebody values
+            $("#tablebody").empty()
+            
+
+            // database.ref().set(name: )
+            
+            database.ref().set({
+            trainNumber: trainNumber,
+            name: name,
+            destination: destination,
+            firstTrain: firstTrain,
+            frequency: frequency,
+            })    
+            
+        })
+
+    </script> -->
