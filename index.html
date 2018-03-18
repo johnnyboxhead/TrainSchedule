@@ -76,18 +76,22 @@
         var dbFreq
         var dbTrainNumber = 0
         var timer
-
+        var dbSnapshot
 
         // event listener to push data to the table when a change is made to the database
-        // timer = setInterval(updateTable, 60000)
-
-        
+        timer = setInterval(updateTable, 60000)  
+        function updateTable() {
+            $("#tablebody").empty()
             database.ref().on("child_added", function(snapshot){
-                dbName = snapshot.val().name;
-                dbDest = snapshot.val().destination;
-                dbFirstTrain = moment(snapshot.val().firstTrain, "HH:mm");
-                dbFreq = snapshot.val().frequency;
-                dbTrainNumber = snapshot.val().trainNumber;
+ 
+                if (typeof snapshot != "undefined") {
+                    dbSnapshot = snapshot
+                }    
+                dbName = dbSnapshot.val().name;
+                dbDest = dbSnapshot.val().destination;
+                dbFirstTrain = moment(dbSnapshot.val().firstTrain, "HH:mm");
+                dbFreq = dbSnapshot.val().frequency;
+                dbTrainNumber = dbSnapshot.val().trainNumber;
                 
                 frequency = parseInt(dbFreq)
                 console.log("frequency: " + frequency)
@@ -105,44 +109,16 @@
 
                 nextOne = moment().add(minsAway, "minutes")
                 console.log("nextOne: " + nextOne)
-                
-                // updateTable()
-
-                
-                //Testin how moment works
-                
-                // if (moment() < dbFirstTrain){
-                //     nextOne = dbFirstTrain
-                // } else {
-                
-                // }
-                
-                // console.log(dbFirstTrain)
-                // console.log(dbFreq)
 
                 //adding the new records to the table
                 $("#tablebody").append(`<tr><td>${dbTrainNumber}</td><td>${dbName}</td><td>${dbDest}</td><td>${dbFreq}</td><td>${nextOne}</td><td>${minsAway}</td></tr>`);
                 
-                
-                
+                // timer = setInterval(updateTable, 5000)
             })
-            //     if (snapshot.val().dbTrainNumber > 0) {
-        //         dbName = snapshot.val().train.name;
-        //         dbDest = snapshot.val().train.destination;
-        //         dbFirstTrain = snapshot.val().train.firstTrain;
-        //         dbFreq = snapshot.val().train.frequency;
-        //         dbTrainNumber = snapshot.val().train.trainNumber;
-
-        //         console.log(snapshot.val())
-                // $("#tablebody").val("");
-                // $("#tablebody").append(`<td>${dbTrainNumber}</td><td>${dbName}</td><td>${dbDest}</td><td>${dbFirstTrain}</td><td>${dbFreq}</td>`);
-        //     } else {
-        //         //need to tell it what to do if the condition doesn't exist
-        //         dbTrainNumber = 0
-        //     }
-        // })    
-
-
+        }
+        updateTable()
+        timer = setInterval(updateTable, 60000)
+        // timer = setInterval(updateTable, 60000)    
 
         // event listener to take user input data and push it to the database
         $("#submit").on("click", function(){
@@ -153,11 +129,6 @@
                     name: $("#trainname").val(),
                     trainNumber: dbTrainNumber + 1,
                 }
-
-                
-                // console.log(trains)
-                // console.log("test2")
-                // console.log(trains)
                 
                 $("#trainname").val("")
                 $("#destination").val("")
