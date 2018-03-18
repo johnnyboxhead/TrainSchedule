@@ -30,24 +30,6 @@
                 </tr>
             </thead>
             <tbody id="tablebody">
-                <tr>
-                <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
-                </tr>
-                <tr>
-                <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
-                </tr>
-                <tr>
-                <th scope="row">3</th>
-                <td>Larry</td>
-                <td>the Bird</td>
-                <td>@twitter</td>
-                </tr>
             </tbody>
         </table>
     </div>    
@@ -63,6 +45,7 @@
         <input type="text" name="frequency" id="frequency"><br><br>
         <input type="submit" name="submitbutton" id="submit">
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.21.0/moment.js"></script>
     <script>
         // Initialize Firebase
         var config = {
@@ -77,12 +60,13 @@
   firebase.initializeApp(config);
         
         var train 
-        var trains = []
         var name
         var destination
         var frequency
         var nextOne
         var minsAway
+        var diffTime
+        var firstTimeConverted
         var firstTrain
         var database = firebase.database()
         var trainNumber
@@ -91,11 +75,58 @@
         var dbFirstTrain
         var dbFreq
         var dbTrainNumber = 0
+        var timer
 
 
         // event listener to push data to the table when a change is made to the database
-        // database.ref().on("value", function(snapshot){
-        //     if (snapshot.val().dbTrainNumber > 0) {
+        // timer = setInterval(updateTable, 60000)
+
+        
+            database.ref().on("child_added", function(snapshot){
+                dbName = snapshot.val().name;
+                dbDest = snapshot.val().destination;
+                dbFirstTrain = moment(snapshot.val().firstTrain, "HH:mm");
+                dbFreq = snapshot.val().frequency;
+                dbTrainNumber = snapshot.val().trainNumber;
+                
+                frequency = parseInt(dbFreq)
+                console.log("frequency: " + frequency)
+
+                firstTimeConverted = moment(dbFirstTrain, "HH:mm").subtract(1, "days")
+                console.log("firstTimeConverted: " + firstTimeConverted)
+
+                diffTime = moment().diff(moment(firstTimeConverted), "minutes")
+                console.log("diffTime: " + diffTime)
+
+                minsAway = diffTime % frequency
+                console.log("minsAway: " + minsAway)
+
+                minsAway = frequency - minsAway 
+
+                nextOne = moment().add(minsAway, "minutes")
+                console.log("nextOne: " + nextOne)
+                
+                // updateTable()
+
+                
+                //Testin how moment works
+                
+                // if (moment() < dbFirstTrain){
+                //     nextOne = dbFirstTrain
+                // } else {
+                
+                // }
+                
+                // console.log(dbFirstTrain)
+                // console.log(dbFreq)
+
+                //adding the new records to the table
+                $("#tablebody").append(`<tr><td>${dbTrainNumber}</td><td>${dbName}</td><td>${dbDest}</td><td>${dbFreq}</td><td>${nextOne}</td><td>${minsAway}</td></tr>`);
+                
+                
+                
+            })
+            //     if (snapshot.val().dbTrainNumber > 0) {
         //         dbName = snapshot.val().train.name;
         //         dbDest = snapshot.val().train.destination;
         //         dbFirstTrain = snapshot.val().train.firstTrain;
@@ -103,8 +134,8 @@
         //         dbTrainNumber = snapshot.val().train.trainNumber;
 
         //         console.log(snapshot.val())
-        //         $("#tablebody").val("");
-        //         $("#tablebody").append(`<td>${dbTrainNumber}</td><td>${dbName}</td><td>${dbDest}</td><td>${dbFirstTrain}</td><td>${dbFreq}</td>`);
+                // $("#tablebody").val("");
+                // $("#tablebody").append(`<td>${dbTrainNumber}</td><td>${dbName}</td><td>${dbDest}</td><td>${dbFirstTrain}</td><td>${dbFreq}</td>`);
         //     } else {
         //         //need to tell it what to do if the condition doesn't exist
         //         dbTrainNumber = 0
@@ -115,123 +146,31 @@
 
         // event listener to take user input data and push it to the database
         $("#submit").on("click", function(){
-            //pushing the trains from the db to the trains array
-            database.ref().on("value", function(snapshot){
-                console.log("Snapshot: " + snapshot.val().trains)
-            })
-            // dbTrainNumber = dbTrainNumber + 1;
-            train = {
-                trainNumber: dbTrainNumber + 1,
-                name: $("#trainname").val(),
-                destination: $("#destination").val(),
-                firstTrain: $("#firsttraintime").val(),
-                frequency: $("#frequency").val()
-            };
+                train = {
+                    destination: $("#destination").val(),
+                    firstTrain: $("#firsttraintime").val(),
+                    frequency: $("#frequency").val(),
+                    name: $("#trainname").val(),
+                    trainNumber: dbTrainNumber + 1,
+                }
 
-            trains.push(train)
+                
+                // console.log(trains)
+                // console.log("test2")
+                // console.log(trains)
+                
+                $("#trainname").val("")
+                $("#destination").val("")
+                $("#firsttraintime").val("")
+                $("#frequency").val("")
 
-            console.log(trains)
-            
-            $("#trainname").val("")
-            $("#destination").val("")
-            $("#firsttraintime").val("")
-            $("#frequency").val("")
+                //passing the trains array to firebase
+                database.ref().push(train)
 
-            //teting to see where to clear the tablebody values
-            $("#tablebody").empty()
-
-            //passing the trains array to firebase
-            database.ref().set({
-                trains: trains
-            })    
-            
         })
+        // })
 
     </script>
 </body>
 </html>
 
-<!-- // database.ref().on("value", function(snapshot){
-    //     dbTrainNumber = (snapshot.val().trainNumber)+1
-    // }) -->
-
-
-<!-- JS that works but without objects for each train -->
-<!-- <script>
-        // Initialize Firebase
-        var config = {
-        apiKey: "AIzaSyBujkiz995urKQHvDC42hrsUKNzV9OdcEM",
-        authDomain: "johnny-demo.firebaseapp.com",
-        databaseURL: "https://johnny-demo.firebaseio.com",
-        projectId: "johnny-demo",
-        storageBucket: "johnny-demo.appspot.com",
-        messagingSenderId: "1079768860694"
-        };
-
-  firebase.initializeApp(config);
-        
-        var name
-        var destination
-        var frequency
-        var nextOne
-        var minsAway
-        var firstTrain
-        var database = firebase.database()
-        var trainNumber
-        var dbName
-        var dbDest
-        var dbFirstTrain
-        var dbFreq
-        var dbTrainNumber
-
-
-        // event listener to push data to the table when a change is made to the database
-        database.ref().on("value", function(snapshot){
-            dbName = snapshot.val().name
-            dbDest = snapshot.val().destination
-            dbFirstTrain = snapshot.val().firstTrain
-            dbFreq = snapshot.val().frequency
-            dbTrainNumber = snapshot.val().trainNumber
-
-            console.log(snapshot.val())
-            $("#tablebody").val("")
-            $("#tablebody").append(`<td>${dbTrainNumber}</td><td>${dbName}</td><td>${dbDest}</td><td>${dbFirstTrain}</td><td>${dbFreq}</td>`)
-        })
-
-
-        // event listener to take user input data and push it to the database
-        $("#submit").on("click", function(){
-            name = $("#trainname").val();
-            destination = $("#destination").val();
-            firstTrain = $("#firsttraintime").val();
-            frequency = $("#frequency").val();
-            
-            //obtaining the trainNumber from the database
-            database.ref().on("value", function(snapshot){
-            trainNumber = (snapshot.val().trainNumber)+1
-            })
-
-            console.log(name, destination, firstTrain, frequency)
-            
-            $("#trainname").val("")
-            $("#destination").val("")
-            $("#firsttraintime").val("")
-            $("#frequency").val("")
-
-            //teting to see where to clear the tablebody values
-            $("#tablebody").empty()
-            
-
-            // database.ref().set(name: )
-            
-            database.ref().set({
-            trainNumber: trainNumber,
-            name: name,
-            destination: destination,
-            firstTrain: firstTrain,
-            frequency: frequency,
-            })    
-            
-        })
-
-    </script> -->
